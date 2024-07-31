@@ -22,6 +22,7 @@ import numpy as np
 
 import copy
 
+
 def fc_pruning(net, alpha, x_batch, task_id, device):
     """ The function for fully connected layer pruning.
 
@@ -133,6 +134,7 @@ def grucell_pruning(net, alpha, task_id, name_layer, num_layer, is_weight, devic
 
     return net
 
+
 def gru_backward_pruning(net, task_id):
     """ The function is to prune the neurons that
     do not connect to the next layer.
@@ -192,6 +194,7 @@ def gru_backward_pruning(net, task_id):
         num_layer -= 1
 
     return net
+
 
 def gru_pruning(net, alpha, x, task_id, device, hx=None):
     """ The function for the GRU pruning.

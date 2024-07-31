@@ -27,7 +27,6 @@ else:
     device = torch.device('cpu')
 
 
-
 def rewrite_parameters(model, old_params):
     """ The function that keeps untrainable parameters fixed.
     Parameters
@@ -45,6 +44,7 @@ def rewrite_parameters(model, old_params):
         param.data = param.data*model.trainable_mask[name].to(device) + old_param.data*(1-model.trainable_mask[name].to(device))
         l_var += 1
     return
+
 
 def train(net, x_train, y_train, x_val, y_val, device, lr, n_epochs, optimizer, scheduler,
           task_id=0, batch_size=100, path_to_save="model.pth", result_folder='./result', print_every=10):

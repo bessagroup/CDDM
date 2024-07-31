@@ -30,6 +30,7 @@ if torch.cuda.is_available():
 else:
     device = torch.device('cpu')
 
+
 def set_seed(seed=0):
     """ The function sets random seed.
 
@@ -37,6 +38,7 @@ def set_seed(seed=0):
     ----------
     seed : int
         The value of seed.
+
     Returns
     -------
     """
@@ -47,6 +49,7 @@ def set_seed(seed=0):
     torch.backends.cudnn.deterministic = True
 
     return
+
 
 def gru_total_params(model):
     """ The function calculates the number of
@@ -70,6 +73,7 @@ def gru_total_params(model):
 
     return total_number
 
+
 def gru_total_params_mask(model, task_id=0):
     """ The function calculates the number of
     trainable parameters in the subnetwork.
@@ -92,6 +96,7 @@ def gru_total_params_mask(model, task_id=0):
         total_number += model.tasks_masks[task_id][name].sum().int()
 
     return total_number.item()
+
 
 def loss_func(y, y_pred):
     """ The function calculates MSE Loss.
@@ -132,6 +137,7 @@ def error_func(y, y_pred, dim=(1)):
 
     err = torch.mean((y-y_pred).norm(dim=dim)/y.norm(dim=dim))
     return err
+
 
 def process_data(file_name, num_train=500, num_val=100, num_test=100, idx_min=0, idx_max=101, SCALE=True, problem='plasticity-rve'):
     """ The function calculates relative error.
@@ -226,6 +232,7 @@ def process_data(file_name, num_train=500, num_val=100, num_test=100, idx_min=0,
         y_test = (y_test - y_mean)/y_std
 
     return x_train, y_train, x_val, y_val, x_test, y_test, x_mean, x_std, y_mean, y_std
+
 
 def eval(net, file_names, nums_train=[800, 100, 100, 100], num_val=100, num_test=100, idx_min=0, idx_max=101, dim=(1), problem='plasticity-plates'):
     """ The function prints losses and relative errors for every task.

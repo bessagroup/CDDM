@@ -9,7 +9,6 @@ GRU
 """
 
 
-
 import torch
 import torch
 import torch.nn as nn
@@ -26,9 +25,13 @@ if torch.cuda.is_available():
 else:
     device = torch.device('cpu')
 
+
+
 class GRUCell(nn.Module):
     """ Gated Recurrent Unit cell.
     """
+
+
     def __init__(self, input_size, hidden_size, task_id, num_layer, device, bias=True):
         """ Constructor.
         Parameters
@@ -67,6 +70,7 @@ class GRUCell(nn.Module):
 
         self.tasks_masks = []
 
+
     def _create_masks(self, num_layer=0):
         """ The method creates the mask for the current cell.
 
@@ -86,11 +90,13 @@ class GRUCell(nn.Module):
 
         return masks
 
+
     def add_mask(self):
         """ The method adds a new mask for a new task.
         """
 
         self.tasks_masks.append(copy.deepcopy(self.base_masks))
+
 
     def reset_parameters(self):
         """ The method initializes the random parameters for the GRU.
@@ -99,6 +105,7 @@ class GRUCell(nn.Module):
         std = 1.0 / np.sqrt(self.hidden_size)
         for w in self.parameters():
             w.data.uniform_(-std, std)
+
 
     def forward(self, input, hx=None, mode=None, alpha=0.95):
 
@@ -160,9 +167,12 @@ class GRUCell(nn.Module):
 
         return hy
 
+
 class GRU(nn.Module):
     """ Gated Recurrent Unit neural network.
     """
+
+
     def __init__(self, input_size, seq_len, hidden_size, num_layers, output_size, device, bias=True):
         """ Constructor.
         Parameters
@@ -217,6 +227,7 @@ class GRU(nn.Module):
         self.masks_union = copy.deepcopy(self.tasks_masks[0])
         self.masks_intersection = copy.deepcopy(self.tasks_masks[0])
 
+
     def _make_layers(self, input_size, hidden_size, num_layers, bias):
         """ The method creates layers and masks for the GRU.
         Parameters
@@ -263,6 +274,7 @@ class GRU(nn.Module):
 
         return rnn_cell_list, rnn_cell_masks
 
+
     def add_mask(self, task_id, overlap=True):
         """ The method adds a new mask for a new task.
 
@@ -297,6 +309,7 @@ class GRU(nn.Module):
         for cell in self.rnn_cell_list:
             cell.task_id = task_id
 
+
     def set_masks_union(self):
         """ The method sets the union of all masks.
         """
@@ -305,6 +318,7 @@ class GRU(nn.Module):
             for name in self.rnn_cell_masks:
                 self.masks_union[name] = copy.deepcopy(1*torch.logical_or(self.masks_union[name], self.tasks_masks[task_id][name]))
 
+
     def set_masks_intersection(self):
         """ The method sets the intersection of all masks.
         """
@@ -312,6 +326,7 @@ class GRU(nn.Module):
         for task_id in range(1, self.num_tasks):
             for name in self.rnn_cell_masks:
                 self.masks_intersection[name] = copy.deepcopy(1*torch.logical_and(self.masks_intersection[name], self.tasks_masks[task_id][name]))
+
 
     def set_trainable_masks(self, task_id):
         """ The method sets a mask for trainable parameters
@@ -390,6 +405,7 @@ class GRU(nn.Module):
                 masks_database[task_id][name] = self.tasks_masks[task_id][name]
 
         torch.save(masks_database, file_name)
+
 
     def load_masks(self, file_name='net_masks.pt', num_tasks=1):
         """ The method loads all masks.
