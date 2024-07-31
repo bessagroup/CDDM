@@ -73,10 +73,18 @@ def continual_learning(net, file_names, alpha, optimizer_name, scheduler, n_epoc
     
     num_tasks = len(file_names)
     print(file_names)
+
+    for task_id in range(num_tasks):
+        if nums_train[task_id] > 1000:
+            print('ERROR: Number of training paths too large')
+            return
+        if nums_train[task_id] < 1:
+            print('ERROR: Number of training paths must be positive')
+            return
     
     for task_id in range(num_tasks):
         num_train = nums_train[task_id]
-        
+
         print('TRAIN PATHS: ', num_train)
         
         x_train, y_train, x_val, y_val, x_test, y_test, x_mean, x_std, y_mean, y_std = process_data(file_names[task_id], 
