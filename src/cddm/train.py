@@ -9,12 +9,7 @@ train
 """
 
 
-import sys
-
 import torch
-import torch.nn as nn
-from torch.nn import functional as F
-from torch.autograd import Variable
 import numpy as np
 
 from .utils import loss_func

@@ -12,15 +12,8 @@ gru_pruning
     The function for the GRU pruning.
 """
 
-import sys
-
 import torch
-import torch.nn as nn
-from torch.nn import functional as F
 from torch.autograd import Variable
-import numpy as np
-
-import copy
 
 
 def fc_pruning(net, alpha, x_batch, task_id, device):
