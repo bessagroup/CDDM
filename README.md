@@ -39,13 +39,23 @@ cd CDDM
 pip install -r requirements.txt
 ```
       
-## Getting started - training the model
+## Getting started
+
+### Alternative 1: running the examples
+
+To follow a commented complete analysis, including network initialization, training and evaluation and plotting of results, run the Jupyter Notebook `EXAMPLES.ipynb`. The problems `plasticity-rve` and `plasticiy-plates` problems are available and one can switch between them in the "Problem Selection" section by (un)commenting the necessary line, e.g. for the former:
+```
+problem = 'plasticity-rve'
+#problem = 'plasticity-plates'
+```
+
+### Alternative 2: 
 
 Run the code with:
 
       python3 -m src.cddm.main
       
-with the following options:
+together with the following options:
 
 * `--problem`: problem to solve (default='plasticity-plates')
 * `--model_name`: model to use (default='gru'; this is the only available option)
@@ -69,8 +79,6 @@ with the following options:
 * `--save_model`: save the model (action='store_true')
 * `--save_result`: save the results (action='store_true')
 * `--result_folder`: path to save the results (default='./result')
-
-### Benchmark
 
 To train the model on data from the folder `data/rve` on tasks ordering `B -> C -> A` with `800, 25, 25` training paths respectively and save results in the folder `./result`, use the following command:
 
