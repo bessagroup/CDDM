@@ -85,7 +85,7 @@ python3 -m src.main --problem plasticity-rve
 
 ## Community support
 
-The development of this  if you have any questions, please feel free to contact Jiaxiang Yi, or open an issue on the GitHub issues page.
+The development of this is considered concluded. Nevertheless, if you have any questions, please feel free to open an issue on the GitHub issues page.
 
 ## License
 
