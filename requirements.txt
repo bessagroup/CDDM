@@ -1,2 +1,6 @@
 xarray==0.14.1
 torch==1.13.1
+scikit-learn
+matplotlib
+numpy==1.23
+seaborn
