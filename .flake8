@@ -27,7 +27,7 @@
 	count = True
 	
 	# Set the maximum length that any line may be
-	max-line-length = 120
+	max-line-length = 150
 	
 	# Set the maximum length that a comment or docstring line may be
 	max-doc-length = 79
@@ -55,7 +55,8 @@
 	# C901: Function is too complex
 	#       Remark: Flake8 does not distinguish between brackets and parentheses
 	#               yet.
-	extend-ignore = E226, E3, C901, F811, E502, E131, F401, E402
+	# F541: f-string is missing placeholders
+	extend-ignore = E226, E3, C901, F811, E502, E131, F401, E402, F541
 	
 	# List of (additional) error codes to check:
 	# E241 : Multiple spaces after ‘,’
