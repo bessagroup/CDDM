@@ -36,7 +36,7 @@
 	indent-size = 4
 	
 	# Print the source code generating the error/warning in question
-	show-source = True
+	# show-source = True
 	
 	# Set the maximum allowed McCabe complexity for a block of code
 	max-complexity = 15
