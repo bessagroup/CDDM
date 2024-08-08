@@ -43,8 +43,10 @@ def fc_pruning(net, alpha, x_batch, task_id, device):
     _ = list(net.state_dict())
 
     name = "fc"
-    fc_weight = net.state_dict()[f"{name}.weight"]*net.tasks_masks[task_id][f"{name}.weight"].to(device)
-    fc_bias = net.state_dict()[f"{name}.bias"]*net.tasks_masks[task_id][f"{name}.bias"].to(device)
+    fc_weight = net.state_dict()[f"{name}.weight"]*net.\
+        tasks_masks[task_id][f"{name}.weight"].to(device)
+    fc_bias = net.state_dict()[f"{name}.bias"]*net.\
+        tasks_masks[task_id][f"{name}.bias"].to(device)
 
     x_batch = x_batch.reshape(x_batch.size(0)*x_batch.size(1), x_batch.size(2))
 
@@ -65,7 +67,8 @@ def fc_pruning(net, alpha, x_batch, task_id, device):
 
         thresh = importances[sorted_indices][pivot]
 
-        net.tasks_masks[task_id][f"{name}.weight"][i][importances[:-1] <= thresh] = 0
+        net.tasks_masks[task_id][f"{\
+            name}.weight"][i][importances[:-1] <= thresh] = 0
 
         if importances[-1] <= thresh:
             net.tasks_masks[task_id][f"{name}.bias"][i] = 0
@@ -73,7 +76,8 @@ def fc_pruning(net, alpha, x_batch, task_id, device):
     return net
 
 
-def grucell_pruning(net, alpha, task_id, name_layer, num_layer, is_weight, device):
+def grucell_pruning(net, alpha, task_id, \
+                    name_layer, num_layer, is_weight, device):
     """ The function for the GRU cell pruning.
 
     Parameters
@@ -101,15 +105,19 @@ def grucell_pruning(net, alpha, task_id, name_layer, num_layer, is_weight, devic
         The network where FC layer is pruned for the task number task_id.
     """
 
-    _ = list(net.state_dict())
+    # layers = list(net.state_dict())
 
     name = f"rnn_cell_list.{num_layer}.{name_layer}"
-    bias = net.state_dict()[f"{name}.bias"].cpu().abs() * net.tasks_masks[task_id][f"{name}.bias"]
+    bias = net.state_dict()[f"{\
+        name}.bias"].cpu().abs() * net.tasks_masks[task_id][f"{name}.bias"]
 
     for i in range(bias.size(0)):
         importances = torch.cat((is_weight.T[i], bias[i].unsqueeze(0)), dim=0)
         sum_importance = torch.sum(importances)
-        _, sorted_indices = torch.sort(importances, descending=True)
+        sorted_importances, sorted_indices = torch.sort(\
+            importances, descending=True)
+        print("importances: ", importances)
+        print("type importances: ", type(importances))
 
         cumsum_importances = torch.cumsum(importances[sorted_indices], dim=0)
         pivot = torch.sum(cumsum_importances < alpha*sum_importance)
@@ -120,7 +128,8 @@ def grucell_pruning(net, alpha, task_id, name_layer, num_layer, is_weight, devic
             pivot = importances.size(0) - 1
 
         thresh = importances[sorted_indices][pivot]
-        net.tasks_masks[task_id][f"{name}.weight"][i][importances[:-1] <= thresh] = 0
+        net.tasks_masks[task_id][f"{\
+            name}.weight"][i][importances[:-1] <= thresh] = 0
 
         if importances[-1] <= thresh:
             net.tasks_masks[task_id][f"{name}.bias"][i] = 0
@@ -147,42 +156,78 @@ def gru_backward_pruning(net, task_id):
 
     num_layer = net.num_layers-1
 
-    pruned_neurons = torch.nonzero(net.tasks_masks[task_id][f"fc.weight"].sum(dim=0) == 0).reshape(1, -1).squeeze(0)
+    pruned_neurons = torch.nonzero(\
+        net.tasks_masks[task_id][f"fc.weight"].sum(\
+            dim=0) == 0).reshape(1, -1).squeeze(0)
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.x2h.weight"][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.x2h.bias"][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.x2h.weight"][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.x2h.bias"][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.h2h.weight"][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.h2h.bias"][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.h2h.weight"][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.h2h.bias"][pruned_neurons] = 0
     # #########
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.x2h.weight"][net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.x2h.bias"][net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.x2h.weight"][net.hidden_size:2*net.\
+                                hidden_size][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.x2h.bias"][net.hidden_size:2*net.\
+                              hidden_size][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.h2h.weight"][net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.h2h.bias"][net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.h2h.weight"][net.hidden_size:2*net.\
+                                hidden_size][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.h2h.bias"][net.hidden_size:2*net.\
+                              hidden_size][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.x2h.weight"][2*net.hidden_size:][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.x2h.bias"][2*net.hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.x2h.weight"][2*net.\
+                                hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.x2h.bias"][2*net.\
+                              hidden_size:][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.h2h.weight"][2*net.hidden_size:][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.h2h.bias"][2*net.hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.h2h.weight"][2*net.\
+                                hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][f"rnn_cell_list.{\
+        num_layer}.h2h.bias"][2*net.\
+                              hidden_size:][pruned_neurons] = 0
 
 
     while num_layer > 0:
         for name_layer in ["x2h", "h2h"]:
             # name = f"rnn_cell_list.{num_layer}"
-            pruned_neurons = torch.nonzero(net.tasks_masks[task_id][f"rnn_cell_list.{num_layer}.{name_layer}.weight"].sum(dim=0)
+            pruned_neurons = torch.nonzero(\
+                net.tasks_masks[task_id][f"rnn_cell_list.{\
+                    num_layer}.{name_layer}.weight"].sum(dim=0)
                                            == 0).reshape(1, -1).squeeze(0)
 
-            net.tasks_masks[task_id][f"rnn_cell_list.{num_layer-1}.{name_layer}.weight"][pruned_neurons] = 0
-            net.tasks_masks[task_id][f"rnn_cell_list.{num_layer-1}.{name_layer}.bias"][pruned_neurons] = 0
+            net.tasks_masks[task_id][f"rnn_cell_list.{\
+                num_layer-1}.{name_layer}.weight"][pruned_neurons] = 0
+            net.tasks_masks[task_id][f"rnn_cell_list.{\
+                num_layer-1}.{name_layer}.bias"][pruned_neurons] = 0
             # ##
 
-            net.tasks_masks[task_id][f"rnn_cell_list.{num_layer-1}.{name_layer}.weight"][net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
-            net.tasks_masks[task_id][f"rnn_cell_list.{num_layer-1}.{name_layer}.bias"][net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
+            net.tasks_masks[task_id][f"rnn_cell_list.{\
+                num_layer-1}.{\
+                    name_layer}.weight"][net.hidden_size:2*net.\
+                                         hidden_size][pruned_neurons] = 0
+            net.tasks_masks[task_id][f"rnn_cell_list.{\
+                num_layer-1}.{\
+                    name_layer}.bias"][net.hidden_size:2*net.\
+                                       hidden_size][pruned_neurons] = 0
 
-            net.tasks_masks[task_id][f"rnn_cell_list.{num_layer-1}.{name_layer}.weight"][2*net.hidden_size:][pruned_neurons] = 0
-            net.tasks_masks[task_id][f"rnn_cell_list.{num_layer-1}.{name_layer}.bias"][2*net.hidden_size:][pruned_neurons] = 0
+            net.tasks_masks[task_id][f"rnn_cell_list.{\
+                num_layer-1}.{\
+                   name_layer}.weight"][2*net.hidden_size:][pruned_neurons] = 0
+            net.tasks_masks[task_id][f"rnn_cell_list.{\
+                num_layer-1}.{\
+                    name_layer}.bias"][2*net.hidden_size:][pruned_neurons] = 0
 
         num_layer -= 1
 
@@ -217,9 +262,11 @@ def gru_pruning(net, alpha, x, task_id, device, hx=None):
 
     if hx is None:
         if torch.cuda.is_available():
-            h0 = Variable(torch.zeros(net.num_layers, x.size(0), net.hidden_size).cuda())
+            h0 = Variable(\
+                torch.zeros(net.num_layers, x.size(0), net.hidden_size).cuda())
         else:
-            h0 = Variable(torch.zeros(net.num_layers, x.size(0), net.hidden_size))
+            h0 = Variable(\
+                torch.zeros(net.num_layers, x.size(0), net.hidden_size))
     else:
         h0 = hx
 
@@ -244,9 +291,12 @@ def gru_pruning(net, alpha, x, task_id, device, hx=None):
         for layer in range(net.num_layers):
 
             if layer == 0:
-                hidden_l, x2h_is_l, h2h_is_l = net.rnn_cell_list[layer](x[:, t, :], hidden[layer], mode='prune')
+                hidden_l, x2h_is_l, h2h_is_l = \
+                    net.rnn_cell_list[layer](x[:, t, :], \
+                                             hidden[layer], mode='prune')
             else:
-                hidden_l, x2h_is_l, h2h_is_l = net.rnn_cell_list[layer](hidden[layer - 1], hidden[layer], mode='prune')
+                hidden_l, x2h_is_l, h2h_is_l = net.rnn_cell_list[layer](\
+                    hidden[layer - 1], hidden[layer], mode='prune')
 
             hidden[layer] = hidden_l
             x2h_is[layer] = (x2h_is[layer]*t + x2h_is_l.cpu())/(t+1)
@@ -255,8 +305,12 @@ def gru_pruning(net, alpha, x, task_id, device, hx=None):
         outs.append(hidden_l.unsqueeze(1))
 
     for layer in range(net.num_layers):
-        net = grucell_pruning(net, alpha, task_id, name_layer='x2h', num_layer=layer, is_weight=x2h_is[layer], device=device)
-        net = grucell_pruning(net, alpha, task_id, name_layer='h2h', num_layer=layer, is_weight=h2h_is[layer], device=device)
+        net = grucell_pruning(\
+            net, alpha, task_id, name_layer='x2h', \
+                num_layer=layer, is_weight=x2h_is[layer], device=device)
+        net = grucell_pruning(\
+            net, alpha, task_id, name_layer='h2h', \
+                num_layer=layer, is_weight=h2h_is[layer], device=device)
 
     out = torch.cat(outs, dim=1)
 

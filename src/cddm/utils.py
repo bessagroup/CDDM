@@ -139,7 +139,11 @@ def error_func(y, y_pred, dim=(1)):
     return err
 
 
-def process_data(file_name, num_train=500, num_val=100, num_test=100, idx_min=0, idx_max=101, SCALE=True, problem='plasticity-rve'):
+def process_data(file_name, num_train=500, \
+                 num_val=100, num_test=100, idx_min=0, \
+                 idx_max=101, \
+                 SCALE=True, \
+                 problem='plasticity-rve'):
     """ The function calculates relative error.
 
     Parameters
@@ -179,7 +183,8 @@ def process_data(file_name, num_train=500, num_val=100, num_test=100, idx_min=0,
     idx = np.arange(1000)
     train_idx = idx[:train_points][:num_train]
     val_idx = idx[train_points:(train_points + num_val)]
-    test_idx = idx[(train_points + num_val):(train_points + num_val + num_test)]
+    test_idx = idx[(train_points + \
+                    num_val):(train_points + num_val + num_test)]
 
     x_train, y_train = [], []
     x_val, y_val = [], []
@@ -187,30 +192,63 @@ def process_data(file_name, num_train=500, num_val=100, num_test=100, idx_min=0,
 
     if "rve" in problem:
         for i in train_idx:
-            if len(torch.FloatTensor(df['responses']['stress'].iloc[i])) == 101:
-                x_train.append((torch.FloatTensor(df['responses']['strain'].iloc[i]).flatten(start_dim=1)[:, [0, 1, 3]]).unsqueeze(0).to(device))
-                y_train.append((torch.FloatTensor(df['responses']['stress'].iloc[i]).flatten(start_dim=1)[:, [0, 1, 3]]).unsqueeze(0).to(device))
+            if len(torch.FloatTensor(\
+             df['responses']['stress'].iloc[i])) == 101:
+                x_train.append((torch.FloatTensor(\
+                    df['responses']['strain'].iloc[i]).\
+                                    flatten(start_dim=1)[:, [0, 1, 3]]).\
+                                        unsqueeze(0).to(device))
+                y_train.append((torch.FloatTensor(\
+                    df['responses']['stress'].iloc[i]).\
+                                    flatten(start_dim=1)[:, [0, 1, 3]]).\
+                                        nsqueeze(0).to(device))
         for j in val_idx:
-            if len(torch.FloatTensor(df['responses']['stress'].iloc[j])) == 101:
-                x_val.append((torch.FloatTensor(df['responses']['strain'].iloc[j]).flatten(start_dim=1)[:, [0, 1, 3]]).unsqueeze(0).to(device))
-                y_val.append((torch.FloatTensor(df['responses']['stress'].iloc[j]).flatten(start_dim=1)[:, [0, 1, 3]]).unsqueeze(0).to(device))
+            if len(torch.FloatTensor(\
+             df['responses']['stress'].iloc[j])) == 101:
+                x_val.append((torch.FloatTensor(\
+                    df['responses']['strain'].iloc[j]).\
+                              flatten(start_dim=1)[:, [0, 1, 3]]).\
+                                unsqueeze(0).to(device))
+                y_val.append((torch.FloatTensor(\
+                    df['responses']['stress'].iloc[j]).\
+                              flatten(start_dim=1)[:, [0, 1, 3]]).\
+                                unsqueeze(0).to(device))
 
         for k in test_idx:
-            if len(torch.FloatTensor(df['responses']['stress'].iloc[k])) == 101:
-                x_test.append((torch.FloatTensor(df['responses']['strain'].iloc[k]).flatten(start_dim=1)[:, [0, 1, 3]]).unsqueeze(0).to(device))
-                y_test.append((torch.FloatTensor(df['responses']['stress'].iloc[k]).flatten(start_dim=1)[:, [0, 1, 3]]).unsqueeze(0).to(device))
+            if len(torch.FloatTensor(\
+             df['responses']['stress'].iloc[k])) == 101:
+                x_test.append((torch.FloatTensor(\
+                    df['responses']['strain'].iloc[k]).\
+                               flatten(start_dim=1)[:, [0, 1, 3]]).\
+                                unsqueeze(0).to(device))
+                y_test.append((torch.FloatTensor(\
+                    df['responses']['stress'].iloc[k]).\
+                               flatten(start_dim=1)[:, [0, 1, 3]]).\
+                                unsqueeze(0).to(device))
     else:
         for i in train_idx:
-            x_train.append(torch.FloatTensor(df[f"strain-[path-{i+1}]"].values).unsqueeze(0).to(device))
-            y_train.append(torch.FloatTensor(df[f"stress-[path-{i+1}]"].values).unsqueeze(0).to(device))
+            x_train.append(torch.FloatTensor(\
+                df[f"strain-[path-{i+1}]"].values).\
+                           unsqueeze(0).to(device))
+            y_train.append(torch.FloatTensor(\
+                df[f"stress-[path-{i+1}]"].values).\
+                           unsqueeze(0).to(device))
 
         for j in val_idx:
-            x_val.append(torch.FloatTensor(df[f"strain-[path-{j+1}]"].values).unsqueeze(0).to(device))
-            y_val.append(torch.FloatTensor(df[f"stress-[path-{j+1}]"].values).unsqueeze(0).to(device))
+            x_val.append(torch.FloatTensor(\
+                df[f"strain-[path-{j+1}]"].values).\
+                         unsqueeze(0).to(device))
+            y_val.append(torch.FloatTensor(\
+                df[f"stress-[path-{j+1}]"].values).\
+                         unsqueeze(0).to(device))
 
         for k in test_idx:
-            x_test.append(torch.FloatTensor(df[f"strain-[path-{k+1}]"].values).unsqueeze(0).to(device))
-            y_test.append(torch.FloatTensor(df[f"stress-[path-{k+1}]"].values).unsqueeze(0).to(device))
+            x_test.append(torch.FloatTensor(\
+                df[f"strain-[path-{k+1}]"].values).\
+                          unsqueeze(0).to(device))
+            y_test.append(torch.FloatTensor(\
+                df[f"stress-[path-{k+1}]"].values).\
+                          unsqueeze(0).to(device))
 
     # print(x_train)
     x_train, y_train = torch.cat(x_train, dim=0), torch.cat(y_train, dim=0)
@@ -231,10 +269,17 @@ def process_data(file_name, num_train=500, num_val=100, num_test=100, idx_min=0,
         y_val = (y_val - y_mean)/y_std
         y_test = (y_test - y_mean)/y_std
 
-    return x_train, y_train, x_val, y_val, x_test, y_test, x_mean, x_std, y_mean, y_std
+    return x_train, y_train, \
+        x_val, y_val, \
+        x_test, y_test, \
+        x_mean, x_std, \
+        y_mean, y_std
 
 
-def eval(net, file_names, nums_train=[800, 100, 100, 100], num_val=100, num_test=100, idx_min=0, idx_max=101, dim=(1), problem='plasticity-plates'):
+def eval(net, file_names, \
+         nums_train=[800, 100, 100, 100], num_val=100, \
+         num_test=100, idx_min=0, idx_max=101, dim=(1), \
+         problem='plasticity-plates'):
     """ The function prints losses and relative errors for every task.
 
     Parameters
@@ -270,18 +315,21 @@ def eval(net, file_names, nums_train=[800, 100, 100, 100], num_val=100, num_test
     for task_id in range(num_tasks):
         num_train = nums_train[task_id]
 
-        x_train, y_train, x_val, y_val, x_test, y_test, x_mean, x_std, y_mean, y_std = process_data(file_names[task_id],
-                                                                                                    num_train=num_train,
-                                                                                                    num_val=num_val,
-                                                                                                    num_test=num_test,
-                                                                                                    idx_min=idx_min,
-                                                                                                    idx_max=idx_max,
-                                                                                                    problem=problem)
+        x_train, y_train, x_val, y_val, x_test, y_test, \
+            x_mean, x_std, y_mean, y_std = process_data(file_names[task_id],
+                                                        num_train=num_train,
+                                                        num_val=num_val,
+                                                        num_test=num_test,
+                                                        idx_min=idx_min,
+                                                        idx_max=idx_max,
+                                                        problem=problem)
         net.set_task(task_id)
         y_pred = net(x_test)
 
         losses.append(loss_func(y_test, y_pred).item())
-        errors.append((100*error_func(y_test*y_std + y_mean, y_pred*y_std + y_mean, dim=dim).item()))
+        errors.append((100*error_func(y_test*y_std + \
+                                      y_mean, y_pred*y_std + \
+                                      y_mean, dim=dim).item()))
 
         print("loss: ", losses[-1])
         print("error: %.3f" % errors[-1]+"%")

@@ -32,7 +32,8 @@ class GRUCell(nn.Module):
     """
 
 
-    def __init__(self, input_size, hidden_size, task_id, num_layer, device, bias=True):
+    def __init__(self, input_size, hidden_size, \
+                 task_id, num_layer, device, bias=True):
         """ Constructor.
         Parameters
         ----------
@@ -112,12 +113,20 @@ class GRUCell(nn.Module):
         if hx is None:
             hx = Variable(input.new_zeros(input.size(0), self.hidden_size))
 
-        x2h_active_weight = self.x2h.weight*self.tasks_masks[self.task_id][f'rnn_cell_list.{self.num_layer}.x2h.weight'].to(self.device)
-        x2h_active_bias = self.x2h.bias*self.tasks_masks[self.task_id][f'rnn_cell_list.{self.num_layer}.x2h.bias'].to(self.device)
+        x2h_active_weight = self.x2h.weight * \
+            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
+                self.num_layer}.x2h.weight'].to(self.device)
+        x2h_active_bias = self.x2h.bias * \
+            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
+                self.num_layer}.x2h.bias'].to(self.device)
 
         x_t = F.linear(input, weight=x2h_active_weight, bias=x2h_active_bias)
-        h2h_active_weight = self.h2h.weight*self.tasks_masks[self.task_id][f'rnn_cell_list.{self.num_layer}.h2h.weight'].to(self.device)
-        h2h_active_bias = self.h2h.bias*self.tasks_masks[self.task_id][f'rnn_cell_list.{self.num_layer}.h2h.bias'].to(self.device)
+        h2h_active_weight = self.h2h.weight * \
+            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
+                self.num_layer}.h2h.weight'].to(self.device)
+        h2h_active_bias = self.h2h.bias * \
+            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
+                self.num_layer}.h2h.bias'].to(self.device)
         h_t = F.linear(hx, weight=h2h_active_weight, bias=h2h_active_bias)
 
         x_reset, x_upd, x_new = x_t.chunk(3, 1)
@@ -134,32 +143,45 @@ class GRUCell(nn.Module):
             x2h_is = (x2h_active_weight.abs()*(input.abs().mean(dim=0))).T
             h2h_is = (h2h_active_weight.abs()*(hx.abs().mean(dim=0))).T
 
-            if (x_reset.abs()/(x_reset.abs()+h_reset.abs())).mean(dim=(0, 1)) < beta:
+            if (x_reset.abs()/(\
+             x_reset.abs()+h_reset.abs())).mean(dim=(0, 1)) < beta:
                 x2h_is[:self.hidden_size, :] = 0
 
-            if (h_reset.abs()/(x_reset.abs()+h_reset.abs())).mean(dim=(0, 1)) < beta:
+            if (h_reset.abs()/(\
+             x_reset.abs()+h_reset.abs())).mean(dim=(0, 1)) < beta:
                 h2h_is[:self.hidden_size, :] = 0
 
-            if (x_upd.abs()/(x_upd.abs()+h_upd.abs())).mean(dim=(0, 1)) < beta:
+            if (x_upd.abs()/(\
+             x_upd.abs()+h_upd.abs())).mean(dim=(0, 1)) < beta:
                 x2h_is[self.hidden_size:2*self.hidden_size, :] = 0
 
-            if (h_upd.abs()/(x_upd.abs()+h_upd.abs())).mean(dim=(0, 1)) < beta:
+            if (h_upd.abs()/(\
+             x_upd.abs()+h_upd.abs())).mean(dim=(0, 1)) < beta:
                 h2h_is[self.hidden_size:2*self.hidden_size, :] = 0
 
-            if (x_new.abs()/(x_new.abs()+(reset_gate * h_new).abs())).mean(dim=(0, 1)) < beta:
+            if (x_new.abs()/(\
+             x_new.abs()+(reset_gate * h_new).abs())).mean(dim=(0, 1)) < beta:
                 x2h_is[2*self.hidden_size:, :] = 0
 
-            if ((reset_gate * h_new).abs()/(x_new.abs()+(reset_gate * h_new).abs())).mean(dim=(0, 1)) < beta:
+            if ((reset_gate * h_new).abs() / \
+               (x_new.abs()+(reset_gate * h_new).abs())).mean( \
+                   dim=(0, 1)) < beta:
+
                 x2h_is[:self.hidden_size, :] = 0
                 h2h_is[:self.hidden_size, :] = 0
                 h2h_is[2*self.hidden_size:, :] = 0
 
-            if (update_gate*hx).abs().mean(dim=(0, 1)) / ((update_gate*hx).abs() + ((1 - update_gate)*new_gate).abs()).mean(dim=(0, 1)) < beta:
+            if (update_gate*hx).abs().mean( \
+             dim=(0, 1))((update_gate*hx).abs() + \
+                         ((1 - update_gate)*new_gate).abs()).mean(\
+                             dim=(0, 1)) < beta:
                 x2h_is[self.hidden_size:2*self.hidden_size, :] = 0
                 h2h_is[self.hidden_size:2*self.hidden_size, :] = 0
 
-            if ((1 - update_gate)*new_gate).abs().mean(dim=(0, 1)) / ((update_gate*hx).abs()
-                                                                      + ((1 - update_gate)*new_gate).abs()).mean(dim=(0, 1)) < beta:
+            if ((1 - update_gate)*new_gate).abs().mean(\
+                dim=(0, 1)) / ((update_gate*hx).abs() + \
+                               ((1 - update_gate)*new_gate).abs()).mean(\
+                                   dim=(0, 1)) < beta:
                 x2h_is[2*self.hidden_size:, :] = 0
                 h2h_is[2*self.hidden_size:, :] = 0
 
@@ -173,7 +195,9 @@ class GRU(nn.Module):
     """
 
 
-    def __init__(self, input_size, seq_len, hidden_size, num_layers, output_size, device, bias=True):
+    def __init__(self, input_size, seq_len, \
+                 hidden_size, num_layers, output_size, \
+                 device, bias=True):
         """ Constructor.
         Parameters
         ----------
@@ -211,13 +235,16 @@ class GRU(nn.Module):
         self.rnn_cell_list = nn.ModuleList()
         self.rnn_cell_masks = {}
 
-        self.rnn_cell_list, self.rnn_cell_masks = self._make_layers(input_size,
-                                                                    hidden_size,
-                                                                    num_layers,
-                                                                    bias)
+        self.rnn_cell_list, \
+            self.rnn_cell_masks = self._make_layers(input_size,
+                                                    hidden_size,
+                                                    num_layers,
+                                                    bias)
         self.fc = nn.Linear(self.hidden_size, self.output_size)
-        self.rnn_cell_masks['fc.weight'] = torch.ones(self.output_size, self.hidden_size)
-        self.rnn_cell_masks['fc.bias'] = torch.ones(self.output_size)
+        self.rnn_cell_masks['fc.weight'] = torch.ones(\
+            self.output_size, self.hidden_size)
+        self.rnn_cell_masks['fc.bias'] = torch.ones(\
+            self.output_size)
 
 
         self.tasks_masks = []
@@ -292,7 +319,8 @@ class GRU(nn.Module):
         for cell in self.rnn_cell_list:
             cell.add_mask()
             for name in cell.tasks_masks[task_id]:
-                self.tasks_masks[task_id][name] = cell.tasks_masks[task_id][name]
+                self.tasks_masks[task_id][name] = \
+                    cell.tasks_masks[task_id][name]
 
 
     def set_task(self, task_id):
@@ -316,7 +344,9 @@ class GRU(nn.Module):
         self.masks_union = copy.deepcopy(self.tasks_masks[0])
         for task_id in range(1, self.num_tasks):
             for name in self.rnn_cell_masks:
-                self.masks_union[name] = copy.deepcopy(1*torch.logical_or(self.masks_union[name], self.tasks_masks[task_id][name]))
+                self.masks_union[name] = copy.deepcopy(\
+                    1*torch.logical_or(self.masks_union[name], \
+                                       self.tasks_masks[task_id][name]))
 
 
     def set_masks_intersection(self):
@@ -325,7 +355,9 @@ class GRU(nn.Module):
         self.masks_intersection = copy.deepcopy(self.tasks_masks[0])
         for task_id in range(1, self.num_tasks):
             for name in self.rnn_cell_masks:
-                self.masks_intersection[name] = copy.deepcopy(1*torch.logical_and(self.masks_intersection[name], self.tasks_masks[task_id][name]))
+                self.masks_intersection[name] = copy.deepcopy(\
+                    1*torch.logical_and(self.masks_intersection[name], \
+                                        self.tasks_masks[task_id][name]))
 
 
     def set_trainable_masks(self, task_id):
@@ -340,7 +372,9 @@ class GRU(nn.Module):
 
         if task_id > 0:
             for name in self.trainable_mask:
-                self.trainable_mask[name] = copy.deepcopy(1*((self.tasks_masks[task_id][name] - self.masks_union[name]) > 0))
+                self.trainable_mask[name] = copy.deepcopy(\
+                    1*((self.tasks_masks[task_id][name] - \
+                        self.masks_union[name]) > 0))
         else:
             self.trainable_mask = copy.deepcopy(self.tasks_masks[task_id])
 
@@ -348,9 +382,11 @@ class GRU(nn.Module):
     def forward(self, input, hx=None):
         if hx is None:
             if torch.cuda.is_available():
-                h0 = Variable(torch.zeros(self.num_layers, input.size(0), self.hidden_size).cuda())
+                h0 = Variable(torch.zeros(\
+                    self.num_layers, input.size(0), self.hidden_size).cuda())
             else:
-                h0 = Variable(torch.zeros(self.num_layers, input.size(0), self.hidden_size))
+                h0 = Variable(torch.zeros(\
+                    self.num_layers, input.size(0), self.hidden_size))
 
         else:
             h0 = hx
@@ -366,9 +402,11 @@ class GRU(nn.Module):
             for layer in range(self.num_layers):
 
                 if layer == 0:
-                    hidden_l = self.rnn_cell_list[layer](input[:, t, :], hidden[layer])
+                    hidden_l = self.rnn_cell_list[layer](\
+                        input[:, t, :], hidden[layer])
                 else:
-                    hidden_l = self.rnn_cell_list[layer](hidden[layer - 1], hidden[layer])
+                    hidden_l = self.rnn_cell_list[layer](\
+                        hidden[layer - 1], hidden[layer])
 
                 hidden[layer] = hidden_l
 
@@ -377,8 +415,10 @@ class GRU(nn.Module):
 
         outputs = []
         for t in range(len(outs)):
-            active_weight = self.fc.weight*self.tasks_masks[self.task_id]['fc.weight'].to(self.device)
-            active_bias = self.fc.bias*self.tasks_masks[self.task_id]['fc.bias'].to(self.device)
+            active_weight = self.fc.weight * \
+                self.tasks_masks[self.task_id]['fc.weight'].to(self.device)
+            active_bias = self.fc.bias * \
+                self.tasks_masks[self.task_id]['fc.bias'].to(self.device)
             out = F.linear(outs[t], weight=active_weight, bias=active_bias)
 
             outputs.append(out.unsqueeze(1))
@@ -423,11 +463,15 @@ class GRU(nn.Module):
         for task_id in range(num_tasks):
             for cell in self.rnn_cell_list:
                 for name in cell.tasks_masks[task_id]:
-                    cell.tasks_masks[task_id][name] = masks_database[task_id][name]
-                    self.tasks_masks[task_id][name] = cell.tasks_masks[task_id][name]
+                    cell.tasks_masks[task_id][name] = \
+                        masks_database[task_id][name]
+                    self.tasks_masks[task_id][name] = \
+                        cell.tasks_masks[task_id][name]
 
-            self.tasks_masks[task_id]['fc.weight'] = masks_database[task_id]['fc.weight']
-            self.tasks_masks[task_id]['fc.bias'] = masks_database[task_id]['fc.bias']
+            self.tasks_masks[task_id]['fc.weight'] = \
+                masks_database[task_id]['fc.weight']
+            self.tasks_masks[task_id]['fc.bias'] = \
+                masks_database[task_id]['fc.bias']
 
             if task_id+1 < num_tasks:
                 self._add_mask(task_id+1)

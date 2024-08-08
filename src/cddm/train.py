@@ -35,14 +35,21 @@ def rewrite_parameters(model, old_params):
     -------
     """
     l_var = 0
-    for (name, param), (old_name, old_param) in zip(model.named_parameters(), old_params()):
-        param.data = param.data*model.trainable_mask[name].to(device) + old_param.data*(1-model.trainable_mask[name].to(device))
+    for (name, param), \
+        (old_name, old_param) in \
+            zip(model.named_parameters(), old_params()):
+
+        param.data = param.data*model.trainable_mask[name].to(device) + \
+            old_param.data*(1-model.trainable_mask[name].to(device))
         l_var += 1
     return
 
 
-def train(net, x_train, y_train, x_val, y_val, device, lr, n_epochs, optimizer, scheduler,
-          task_id=0, batch_size=100, path_to_save="model.pth", result_folder='./result', print_every=10):
+def train(net, x_train, y_train, x_val, y_val, \
+          device, lr, n_epochs, optimizer, scheduler,
+          task_id=0, batch_size=100, \
+          path_to_save="model.pth", \
+          result_folder='./result', print_every=10):
     """ The function for a training loop.
 
     Parameters
