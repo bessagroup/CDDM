@@ -67,8 +67,8 @@ def fc_pruning(net, alpha, x_batch, task_id, device):
 
         thresh = importances[sorted_indices][pivot]
 
-        net.tasks_masks[task_id][f"{\
-            name}.weight"][i][importances[:-1] <= thresh] = 0
+        net.tasks_masks[task_id][f"{name}.weight"][i][\
+            importances[:-1] <= thresh] = 0
 
         if importances[-1] <= thresh:
             net.tasks_masks[task_id][f"{name}.bias"][i] = 0
@@ -108,8 +108,8 @@ def grucell_pruning(net, alpha, task_id, \
     # layers = list(net.state_dict())
 
     name = f"rnn_cell_list.{num_layer}.{name_layer}"
-    bias = net.state_dict()[f"{\
-        name}.bias"].cpu().abs() * net.tasks_masks[task_id][f"{name}.bias"]
+    bias = net.state_dict()[f"{name}.bias"].cpu(\
+        ).abs() * net.tasks_masks[task_id][f"{name}.bias"]
 
     for i in range(bias.size(0)):
         importances = torch.cat((is_weight.T[i], bias[i].unsqueeze(0)), dim=0)
@@ -128,8 +128,8 @@ def grucell_pruning(net, alpha, task_id, \
             pivot = importances.size(0) - 1
 
         thresh = importances[sorted_indices][pivot]
-        net.tasks_masks[task_id][f"{\
-            name}.weight"][i][importances[:-1] <= thresh] = 0
+        net.tasks_masks[task_id][f"{name}.weight"][\
+            i][importances[:-1] <= thresh] = 0
 
         if importances[-1] <= thresh:
             net.tasks_masks[task_id][f"{name}.bias"][i] = 0
@@ -160,74 +160,72 @@ def gru_backward_pruning(net, task_id):
         net.tasks_masks[task_id][f"fc.weight"].sum(\
             dim=0) == 0).reshape(1, -1).squeeze(0)
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.x2h.weight"][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.x2h.bias"][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.x2h.weight"][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.x2h.bias"][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.h2h.weight"][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.h2h.bias"][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.h2h.weight"][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.h2h.bias"][pruned_neurons] = 0
     # #########
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.x2h.weight"][net.hidden_size:2*net.\
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.x2h.weight"][net.hidden_size:2*net.\
                                 hidden_size][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.x2h.bias"][net.hidden_size:2*net.\
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.x2h.bias"][net.hidden_size:2*net.\
                               hidden_size][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.h2h.weight"][net.hidden_size:2*net.\
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.h2h.weight"][net.hidden_size:2*net.\
                                 hidden_size][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.h2h.bias"][net.hidden_size:2*net.\
-                              hidden_size][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.h2h.bias"][\
+            net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.x2h.weight"][2*net.\
-                                hidden_size:][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.x2h.bias"][2*net.\
-                              hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.x2h.weight"][\
+            2*net.hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.x2h.bias"][\
+            2*net.hidden_size:][pruned_neurons] = 0
 
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.h2h.weight"][2*net.\
-                                hidden_size:][pruned_neurons] = 0
-    net.tasks_masks[task_id][f"rnn_cell_list.{\
-        num_layer}.h2h.bias"][2*net.\
-                              hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.h2h.weight"][\
+            2*net.hidden_size:][pruned_neurons] = 0
+    net.tasks_masks[task_id][\
+        f"rnn_cell_list.{num_layer}.h2h.bias"][\
+            2*net.hidden_size:][pruned_neurons] = 0
 
 
     while num_layer > 0:
         for name_layer in ["x2h", "h2h"]:
             # name = f"rnn_cell_list.{num_layer}"
             pruned_neurons = torch.nonzero(\
-                net.tasks_masks[task_id][f"rnn_cell_list.{\
-                    num_layer}.{name_layer}.weight"].sum(dim=0)
+                net.tasks_masks[task_id][\
+                    f"rnn_cell_list.{num_layer}.{name_layer}.weight"].sum(dim=0)
                                            == 0).reshape(1, -1).squeeze(0)
 
-            net.tasks_masks[task_id][f"rnn_cell_list.{\
-                num_layer-1}.{name_layer}.weight"][pruned_neurons] = 0
-            net.tasks_masks[task_id][f"rnn_cell_list.{\
-                num_layer-1}.{name_layer}.bias"][pruned_neurons] = 0
+            net.tasks_masks[task_id][\
+                f"rnn_cell_list.{num_layer-1}.{name_layer}.weight"][pruned_neurons] = 0
+            net.tasks_masks[task_id][\
+                f"rnn_cell_list.{num_layer-1}.{name_layer}.bias"][pruned_neurons] = 0
             # ##
 
-            net.tasks_masks[task_id][f"rnn_cell_list.{\
-                num_layer-1}.{\
-                    name_layer}.weight"][net.hidden_size:2*net.\
-                                         hidden_size][pruned_neurons] = 0
-            net.tasks_masks[task_id][f"rnn_cell_list.{\
-                num_layer-1}.{\
-                    name_layer}.bias"][net.hidden_size:2*net.\
-                                       hidden_size][pruned_neurons] = 0
+            net.tasks_masks[task_id][\
+                f"rnn_cell_list.{num_layer-1}.{name_layer}.weight"][\
+                    net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
+            net.tasks_masks[task_id][\
+                f"rnn_cell_list.{num_layer-1}.{name_layer}.bias"][\
+                    net.hidden_size:2*net.hidden_size][pruned_neurons] = 0
 
-            net.tasks_masks[task_id][f"rnn_cell_list.{\
-                num_layer-1}.{\
-                   name_layer}.weight"][2*net.hidden_size:][pruned_neurons] = 0
-            net.tasks_masks[task_id][f"rnn_cell_list.{\
-                num_layer-1}.{\
-                    name_layer}.bias"][2*net.hidden_size:][pruned_neurons] = 0
+            net.tasks_masks[task_id][\
+                f"rnn_cell_list.{num_layer-1}.{name_layer}.weight"][\
+                    2*net.hidden_size:][pruned_neurons] = 0
+            net.tasks_masks[task_id][\
+                f"rnn_cell_list.{num_layer-1}.{name_layer}.bias"][\
+                    2*net.hidden_size:][pruned_neurons] = 0
 
         num_layer -= 1
 

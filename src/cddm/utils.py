@@ -201,7 +201,7 @@ def process_data(file_name, num_train=500, \
                 y_train.append((torch.FloatTensor(\
                     df['responses']['stress'].iloc[i]).\
                                     flatten(start_dim=1)[:, [0, 1, 3]]).\
-                                        nsqueeze(0).to(device))
+                                        unsqueeze(0).to(device))
         for j in val_idx:
             if len(torch.FloatTensor(\
              df['responses']['stress'].iloc[j])) == 101:
@@ -276,10 +276,9 @@ def process_data(file_name, num_train=500, \
         y_mean, y_std
 
 
-def eval(net, file_names, \
+def eval(net, file_names, problem, \
          nums_train=[800, 100, 100, 100], num_val=100, \
-         num_test=100, idx_min=0, idx_max=101, dim=(1), \
-         problem='plasticity-plates'):
+         num_test=100, idx_min=0, idx_max=101, dim=(1)):
     """ The function prints losses and relative errors for every task.
 
     Parameters

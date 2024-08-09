@@ -114,19 +114,19 @@ class GRUCell(nn.Module):
             hx = Variable(input.new_zeros(input.size(0), self.hidden_size))
 
         x2h_active_weight = self.x2h.weight * \
-            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
-                self.num_layer}.x2h.weight'].to(self.device)
+            self.tasks_masks[self.task_id][\
+                f'rnn_cell_list.{self.num_layer}.x2h.weight'].to(self.device)
         x2h_active_bias = self.x2h.bias * \
-            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
-                self.num_layer}.x2h.bias'].to(self.device)
+            self.tasks_masks[self.task_id][\
+                f'rnn_cell_list.{self.num_layer}.x2h.bias'].to(self.device)
 
         x_t = F.linear(input, weight=x2h_active_weight, bias=x2h_active_bias)
         h2h_active_weight = self.h2h.weight * \
-            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
-                self.num_layer}.h2h.weight'].to(self.device)
+            self.tasks_masks[self.task_id][\
+                f'rnn_cell_list.{self.num_layer}.h2h.weight'].to(self.device)
         h2h_active_bias = self.h2h.bias * \
-            self.tasks_masks[self.task_id][f'rnn_cell_list.{\
-                self.num_layer}.h2h.bias'].to(self.device)
+            self.tasks_masks[self.task_id][\
+                f'rnn_cell_list.{self.num_layer}.h2h.bias'].to(self.device)
         h_t = F.linear(hx, weight=h2h_active_weight, bias=h2h_active_bias)
 
         x_reset, x_upd, x_new = x_t.chunk(3, 1)

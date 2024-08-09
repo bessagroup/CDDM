@@ -105,7 +105,7 @@ def continual_learning(net, file_names, alpha, optimizer_name,
         print('TRAIN PATHS: ', num_train)
 
         x_train, y_train, x_val, y_val, x_test, y_test, _, _, \
-            y_mean, y_std = process_data(file_names[task_id], \
+            y_mean, y_std = process_data(file_names[task_id],
                                          num_train=num_train,
                                          num_val=num_val,
                                          num_test=num_test,
