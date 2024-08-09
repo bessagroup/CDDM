@@ -139,11 +139,11 @@ def error_func(y, y_pred, dim=(1)):
     return err
 
 
-def process_data(file_name, num_train=500, \
+def process_data(file_name, problem, \
+                 num_train=500, \
                  num_val=100, num_test=100, idx_min=0, \
                  idx_max=101, \
-                 SCALE=True, \
-                 problem='plasticity-rve'):
+                 SCALE=True):
     """ The function calculates relative error.
 
     Parameters
