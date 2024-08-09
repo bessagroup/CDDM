@@ -17,7 +17,14 @@ else:
 
 
 def main():
+    """ The method is the main routine:
+    it parses the input arguments,
+    defines the hyperparameters and
+    calls the other relevant methods.
 
+        Parameters
+        ----------
+        """
     ################
     # Arguments
     ################
