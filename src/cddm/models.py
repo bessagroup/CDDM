@@ -168,10 +168,9 @@ class GRUCell(nn.Module):
                 h2h_is[:self.hidden_size, :] = 0
                 h2h_is[2*self.hidden_size:, :] = 0
 
-            if (update_gate*hx).abs().mean( \
-             dim=(0, 1))((update_gate*hx).abs() + \
-                         ((1 - update_gate)*new_gate).abs()).mean(\
-                             dim=(0, 1)) < beta:
+            if (update_gate*hx).abs().mean(dim=(0, 1)) / (\
+                (update_gate*hx).abs() + (\
+                    (1 - update_gate)*new_gate).abs()).mean(dim=(0, 1)) < beta:
                 x2h_is[self.hidden_size:2*self.hidden_size, :] = 0
                 h2h_is[self.hidden_size:2*self.hidden_size, :] = 0
 

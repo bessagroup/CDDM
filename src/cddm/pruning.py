@@ -290,8 +290,8 @@ def gru_pruning(net, alpha, x, task_id, device, hx=None):
 
             if layer == 0:
                 hidden_l, x2h_is_l, h2h_is_l = \
-                    net.rnn_cell_list[layer](x[:, t, :], \
-                                             hidden[layer], mode='prune')
+                    net.rnn_cell_list[layer](\
+                        x[:, t, :], hidden[layer], mode='prune')
             else:
                 hidden_l, x2h_is_l, h2h_is_l = net.rnn_cell_list[layer](\
                     hidden[layer - 1], hidden[layer], mode='prune')
