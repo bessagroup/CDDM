@@ -11,7 +11,7 @@ gru_backward_pruning
 gru_pruning
     The function for the GRU pruning.
 """
-
+# Third-party
 import torch
 from torch.autograd import Variable
 

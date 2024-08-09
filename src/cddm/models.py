@@ -8,23 +8,20 @@ GRU
     A class for GRU neural network.
 """
 
-
+# Standard
+import copy
+# Third-party
+import numpy as np
 import torch
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 from torch.autograd import Variable
 
-
-import copy
-import numpy as np
-
-
 if torch.cuda.is_available():
     device = torch.device('cuda:0')
 else:
     device = torch.device('cpu')
-
 
 
 class GRUCell(nn.Module):

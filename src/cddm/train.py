@@ -8,13 +8,13 @@ train
     The function for a training loop.
 """
 
-
+# Standard
+import copy
+# Third-party
 import torch
 import numpy as np
-
+# Local
 from .utils import loss_func
-import copy
-
 
 if torch.cuda.is_available():
     device = torch.device('cuda:0')

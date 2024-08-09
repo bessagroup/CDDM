@@ -8,9 +8,9 @@ continual_learning
     A function for continual learning of the given sequence of tasks.
 """
 
-
+# Third-party
 import torch
-
+# Local
 from .train import train
 from .pruning import gru_pruning
 from .utils import loss_func, error_func, process_data

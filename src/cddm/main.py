@@ -1,14 +1,13 @@
+# Standard
+import argparse
+import os
+# Third-party
 import torch
 import pandas as pd
-
+# Local
 from .utils import gru_total_params_mask, set_seed
 from .continual_learning import continual_learning
 from .models import GRU
-
-import argparse
-
-import os
-
 
 if torch.cuda.is_available():
     device = torch.device('cuda:0')
